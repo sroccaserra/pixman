@@ -40,12 +40,14 @@ world = {
     height = 128,
     layer_x_position = 0,
     layer_y_position = 0,
+    has_gravity = false
 }
 
 function world:update()
     self.frame += 1
     for coin in all(coins) do
         if does_pixman_touch_the_coin(coin) then
+            self.has_gravity = true
             points += 1
             coin:hide()
         end
@@ -188,13 +190,16 @@ end
 coin_prototype = {
     start_sprite = 10,
     end_sprite = 13,
-    every = 3
+    every = 3,
+    v_inc = 0.5
 }
 
 function coin_prototype:new(x, y)
     local o = {
         x = x,
         y = y,
+        v_x = 0,
+        v_y = 0,
         visible = true,
         sprite = self.start_sprite
     }
@@ -204,6 +209,9 @@ function coin_prototype:new(x, y)
 end
 
 function coin_prototype:update(world)
+    if world.has_gravity then
+        self:update_velocity()
+    end
     if world.frame % self.every ~= 0 then
         return
     end
@@ -211,6 +219,18 @@ function coin_prototype:update(world)
     if self.sprite > self.end_sprite then
         self.sprite = self.start_sprite
     end
+end
+
+function coin_prototype:update_velocity()
+    self.x += self.v_x
+    self.y += self.v_y
+    local direction_x = pixman.x - self.x
+    local direction_y = pixman.y - self.y
+    local length = norm(direction_x, direction_y)
+    direction_x /= length
+    direction_y /= length
+    self.v_x += self.v_inc*direction_x
+    self.v_y += self.v_inc*direction_y
 end
 
 function coin_prototype:draw()
@@ -230,6 +250,11 @@ function coin_prototype:hide()
         self.visible = false
         sfx(3)
     end
+end
+
+-->8
+function norm (x, y)
+    return sqrt(x^2 + y^2)
 end
 
 __gfx__
