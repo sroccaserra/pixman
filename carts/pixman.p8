@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+--> main logic
+
 function _init()
     music(0)
     pixman:init()
@@ -34,6 +36,8 @@ function _draw()
 end
 
 -->8
+--> world logic
+
 world = {
     frame = 0,
     width = 128,
@@ -83,6 +87,8 @@ function world:draw()
 end
 
 -->8
+--> pixman
+
 pixman = {
     animations = {
         up =
@@ -187,6 +193,8 @@ function pixman:draw()
 end
 
 -->8
+--> coin logic
+
 coin_prototype = {
     start_sprite = 10,
     end_sprite = 13,
@@ -210,6 +218,7 @@ end
 
 function coin_prototype:update(world)
     if world.has_gravity then
+        self:update_position()
         self:update_velocity()
     end
     if world.frame % self.every ~= 0 then
@@ -221,9 +230,12 @@ function coin_prototype:update(world)
     end
 end
 
-function coin_prototype:update_velocity()
+function coin_prototype:update_position()
     self.x += self.v_x
     self.y += self.v_y
+end
+
+function coin_prototype:update_velocity()
     local direction_x = pixman.x - self.x
     local direction_y = pixman.y - self.y
     local length = norm(direction_x, direction_y)
@@ -253,6 +265,8 @@ function coin_prototype:hide()
 end
 
 -->8
+--> math
+
 function norm (x, y)
     return sqrt(x^2 + y^2)
 end
