@@ -1,7 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
---> main logic
+-- ~pixman~
+-- sroccaserra
 
 function _init()
     music(0)
@@ -235,14 +236,19 @@ function coin_prototype:update_position()
     self.y += self.v_y
 end
 
-function coin_prototype:update_velocity()
+function coin_prototype:get_gravity_direction()
     local direction_x = pixman.x - self.x
     local direction_y = pixman.y - self.y
     local length = norm(direction_x, direction_y)
     direction_x /= length
     direction_y /= length
-    self.v_x += self.v_inc*direction_x
-    self.v_y += self.v_inc*direction_y
+    return direction_x, direction_y
+end
+
+function coin_prototype:update_velocity()
+    local g_direction_x, g_direction_y = self:get_gravity_direction()
+    self.v_x += self.v_inc*g_direction_x
+    self.v_y += self.v_inc*g_direction_y
 end
 
 function coin_prototype:draw()
