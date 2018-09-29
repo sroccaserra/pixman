@@ -96,6 +96,7 @@ pixman = {
         {
             start_sprite = 23,
             end_sprite = 25,
+            v_flip = true
         },
         down =
         {
@@ -106,6 +107,7 @@ pixman = {
         {
             start_sprite = 7,
             end_sprite = 9,
+            h_flip = true
         },
         right =
         {
@@ -124,8 +126,7 @@ function pixman:init()
     self.dy = 0
     local direction = 'right'
     self.direction = direction
-    self.animation =
-    self.animations[direction]
+    self.animation = self.animations[direction]
     self.sprite = self.animation.start_sprite
 end
 
@@ -171,8 +172,7 @@ function pixman:clamp(world)
 end
 
 function pixman:update_sprite(frame)
-    self.animation =
-    self.animations[self.direction]
+    self.animation = self.animations[self.direction]
     if frame % self.every == 0 and
         (self.dx ~= 0 or self.dy ~= 0) then
         self.sprite += 1
@@ -184,8 +184,8 @@ function pixman:update_sprite(frame)
 end
 
 function pixman:draw()
-    local h_flip = self.direction == 'left'
-    local v_flip = self.direction == 'up'
+    local h_flip = self.animation.h_flip
+    local v_flip = self.animation.v_flip
     pal(12, 1)
     pal(9, 1)
     spr(self.sprite, self.x+1, self.y+1, 1, 1, h_flip, v_flip)
