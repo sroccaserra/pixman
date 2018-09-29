@@ -40,7 +40,6 @@ end
 --> world logic
 
 world = {
-    frame = 0,
     width = 128,
     height = 128,
     layer_x_position = 0,
@@ -49,7 +48,6 @@ world = {
 }
 
 function world:update()
-    self.frame += 1
     for coin in all(coins) do
         if does_pixman_touch_the_coin(coin) then
             self.has_gravity = true
@@ -88,35 +86,54 @@ function world:draw()
 end
 
 -->8
+-- animation
+
+animation_prototype = {
+    ticks_by_frames = 3
+}
+
+function animation_prototype:new(frames, h_flip, v_flip)
+    local o = {
+        frames = frames,
+        h_flip = h_flip,
+        v_flip = v_flip,
+        n_frame = 1,
+        tick_count = 0
+    }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function animation_prototype:tick()
+    self.tick_count += 1
+    if self.tick_count % self.ticks_by_frames == 0 then
+        self:advance_frame()
+    end
+end
+
+function animation_prototype:advance_frame()
+    self.n_frame += 1
+    if self.n_frame > #self.frames then
+        self.n_frame = 1
+    end
+end
+
+function animation_prototype:sprite_number()
+    return self.frames[self.n_frame]
+end
+
+-->8
 --> pixman
 
 pixman = {
     animations = {
-        up =
-        {
-            start_sprite = 23,
-            end_sprite = 25,
-            v_flip = true
-        },
-        down =
-        {
-            start_sprite = 23,
-            end_sprite = 25,
-        },
-        left =
-        {
-            start_sprite = 7,
-            end_sprite = 9,
-            h_flip = true
-        },
-        right =
-        {
-            start_sprite = 7,
-            end_sprite = 9,
-        },
+        up = animation_prototype:new({23, 24, 25, 24}, false, true),
+        down = animation_prototype:new({23, 24, 25, 24}),
+        left = animation_prototype:new({7, 8, 9, 8}, true),
+        right = animation_prototype:new({7, 8, 9, 8})
     },
     speed = 2,
-    every = 3 -- when to change sprite
 }
 
 function pixman:init()
@@ -127,12 +144,11 @@ function pixman:init()
     local direction = 'right'
     self.direction = direction
     self.animation = self.animations[direction]
-    self.sprite = self.animation.start_sprite
 end
 
 function pixman:update(world)
     self:update_pos(world)
-    self:update_sprite(world.frame)
+    self:update_sprite()
 end
 
 function pixman:update_pos(world)
@@ -171,35 +187,28 @@ function pixman:clamp(world)
     end
 end
 
-function pixman:update_sprite(frame)
-    self.animation = self.animations[self.direction]
-    if frame % self.every == 0 and
-        (self.dx ~= 0 or self.dy ~= 0) then
-        self.sprite += 1
-    end
-    if self.sprite < self.animation.start_sprite or
-        self.sprite > self.animation.end_sprite then
-        self.sprite = self.animation.start_sprite
+function pixman:update_sprite()
+    if self.dx ~= 0 or self.dy ~= 0 then
+        self.animation = self.animations[self.direction]
+        self.animation:tick()
     end
 end
 
 function pixman:draw()
     local h_flip = self.animation.h_flip
     local v_flip = self.animation.v_flip
+    local sprite_number = self.animation:sprite_number()
     pal(12, 1)
     pal(9, 1)
-    spr(self.sprite, self.x+1, self.y+1, 1, 1, h_flip, v_flip)
+    spr(sprite_number, self.x+1, self.y+1, 1, 1, h_flip, v_flip)
     pal()
-    spr(self.sprite, self.x, self.y, 1, 1, h_flip, v_flip)
+    spr(sprite_number, self.x, self.y, 1, 1, h_flip, v_flip)
 end
 
 -->8
 --> coin logic
 
 coin_prototype = {
-    start_sprite = 10,
-    end_sprite = 13,
-    every = 3,
     v_inc = 0.5
 }
 
@@ -210,7 +219,7 @@ function coin_prototype:new(x, y)
         v_x = 0,
         v_y = 0,
         visible = true,
-        sprite = self.start_sprite
+        animation = animation_prototype:new({10, 11, 12, 13})
     }
     setmetatable(o, self)
     self.__index = self
@@ -222,13 +231,7 @@ function coin_prototype:update(world)
         self:update_position()
         self:update_velocity()
     end
-    if world.frame % self.every ~= 0 then
-        return
-    end
-    self.sprite += 1
-    if self.sprite > self.end_sprite then
-        self.sprite = self.start_sprite
-    end
+    self.animation:tick()
 end
 
 function coin_prototype:update_position()
@@ -255,12 +258,13 @@ function coin_prototype:draw()
     if not self.visible then
         return
     end
+    local sprite_number = self.animation:sprite_number()
     pal(4, 1)
     pal(9, 1)
     pal(10, 1)
-    spr(self.sprite, self.x+1, self.y+1)
+    spr(sprite_number, self.x+1, self.y+1)
     pal()
-    spr(self.sprite, self.x, self.y)
+    spr(sprite_number, self.x, self.y)
 end
 
 function coin_prototype:hide()
