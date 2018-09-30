@@ -6,63 +6,57 @@ __lua__
 
 function _init()
     music(0)
+    world:init()
     pixman:init()
-    points = 0
-
-    coins = {}
-    add(coins, coin_prototype:new(81, 39))
-    for x = 45, 81, 9 do
-        for y = 60, 110, 10 do
-            add(coins, coin_prototype:new(x, y))
-        end
-    end
 end
 
 function _update()
     world:update()
-    for coin in all(coins) do
-        coin:update(world)
-    end
     pixman:update(world)
 end
 
 function _draw()
     world:draw()
-    for coin in all(coins) do
-        coin:draw()
-    end
-    print('score: '..points, 11, 11, 1)
-    print('score: '..points, 10, 10, 12)
     pixman:draw()
 end
 
 -->8
---> world logic
+-- world logic
 
 world = {
     width = 128,
     height = 128,
     layer_x_position = 0,
     layer_y_position = 0,
-    has_gravity = false
+    has_gravity = false,
+    score = 0,
+    coins = {}
 }
 
-function world:update()
-    for coin in all(coins) do
-        if does_pixman_touch_the_coin(coin) then
-            self.has_gravity = true
-            points += 1
-            coin:hide()
+function world:init()
+    add(self.coins, coin_prototype:new(81, 39))
+    for x = 45, 81, 9 do
+        for y = 60, 110, 10 do
+            add(self.coins, coin_prototype:new(x, y))
         end
     end
+end
+
+function world:update()
+    for coin in all(self.coins) do
+        if coin.visible and does_pixman_touch_the_coin(coin) then
+            self.has_gravity = true
+            self.score += 1
+            coin:hide()
+        end
+        coin:update(self)
+    end
+
     self:update_background_layer_position()
 end
 
 function does_pixman_touch_the_coin(coin)
-    return
-    coin.visible and
-    abs(pixman.x - coin.x) < 8 and
-    abs(pixman.y - coin.y) < 8
+    return abs(pixman.x - coin.x) < 8 and abs(pixman.y - coin.y) < 8
 end
 
 function world:update_background_layer_position()
@@ -83,10 +77,16 @@ function world:draw()
     map(0, 0, 0, 0, 16, 16)
     camera()
     map(0, 16, 0, 0, 16, 16)
+
+    for coin in all(self.coins) do
+        coin:draw()
+    end
+    print('score: ' .. self.score, 11, 11, 1)
+    print('score: ' .. self.score, 10, 10, 12)
 end
 
 -->8
--- animation
+-- animation prototype
 
 animation_prototype = {
     ticks_by_frames = 3
@@ -124,7 +124,7 @@ function animation_prototype:sprite_number()
 end
 
 -->8
---> pixman
+-- pixman
 
 pixman = {
     animations = {
@@ -206,7 +206,7 @@ function pixman:draw()
 end
 
 -->8
---> coin logic
+-- coin prototpye
 
 coin_prototype = {
     v_inc = 0.5
@@ -275,7 +275,7 @@ function coin_prototype:hide()
 end
 
 -->8
---> math
+-- math
 
 function norm (x, y)
     return sqrt(x^2 + y^2)
