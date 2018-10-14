@@ -8,4 +8,4 @@ start-pico8:
 
 .PHONY: start-tic80
 start-tic80:
-	tic80 pixman.tic -sprites pixman.gif -code-watch pixman.lua
+	tic80 pixman.tic -code-watch pixman.lua

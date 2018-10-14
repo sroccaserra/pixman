@@ -66,9 +66,9 @@ function world:update()
 end
 
 function world:update_background_layer_position()
-    self.layer_x_position = self.layer_x_position + 1
+    self.layer_x_position = self.layer_x_position + .5
     self.layer_x_position = self.layer_x_position % self.width
-    self.layer_y_position = self.layer_y_position + 1
+    self.layer_y_position = self.layer_y_position + .5
     self.layer_y_position = self.layer_y_position % self.height
 end
 
