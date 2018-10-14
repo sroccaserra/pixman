@@ -79,7 +79,7 @@ function world:draw()
     map(0, 0, 30, 17, sx - self.width, sy - self.height)
     map(0, 0, 30, 17, sx, sy - self.height)
     map(0, 0, 30, 17, sx - self.width, sy)
-    -- map(0, 17, 30, 17, 0, 0)
+    map(0, 17, 30, 17, 0, 0, 0)
 
     for i, coin in ipairs(self.coins) do
         coin:draw()
