@@ -68,25 +68,24 @@ end
 function world:update_background_layer_position()
     self.layer_x_position = self.layer_x_position + 1
     self.layer_x_position = self.layer_x_position % self.width
-    self.layer_y_position = self.layer_x_position + 1
+    self.layer_y_position = self.layer_y_position + 1
     self.layer_y_position = self.layer_y_position % self.height
 end
 
 function world:draw()
     local sx = self.layer_x_position
     local sy = self.layer_y_position
-    -- map(0, 0, 30, 17, sx, sy)
-    -- map(0, 0, 30, 17, sx - self.width, sy - self.height)
-    -- map(0, 0, 30, 17, sx, sy - self.height)
-    -- map(0, 0, 30, 17, sx - self.width, sy)
+    map(0, 0, 30, 17, sx, sy)
+    map(0, 0, 30, 17, sx - self.width, sy - self.height)
+    map(0, 0, 30, 17, sx, sy - self.height)
+    map(0, 0, 30, 17, sx - self.width, sy)
     -- map(0, 17, 30, 17, 0, 0)
-     map(0, 0, 30, 17, 0, 0)
 
     for i, coin in ipairs(self.coins) do
         coin:draw()
     end
-    print('score: ' .. self.score, 11, 11, 1)
-    print('score: ' .. self.score, 10, 10, 12)
+    print('SCORE: ' .. self.score, 11, 11, 2)
+    print('SCORE: ' .. self.score, 10, 10, 8)
 end
 
 -->8
