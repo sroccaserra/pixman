@@ -199,10 +199,10 @@ end
 function pixman:draw()
     local flip = self.animation.flip
     local sprite_number = self.animation:sprite_number()
-    -- pal(12, 1)
-    -- pal(9, 1)
-    -- spr(sprite_number, self.x + 1, self.y + 1, 0, 1, flip)
-    -- pal()
+    pal(8, 2)
+    pal(9, 2)
+    spr(sprite_number, self.x + 1, self.y + 1, 0, 1, flip)
+    pal()
     spr(sprite_number, self.x, self.y, 0, 1, flip)
 end
 
@@ -260,11 +260,11 @@ function coin_prototype:draw()
         return
     end
     local sprite_number = self.animation:sprite_number()
-    -- pal(4, 1)
-    -- pal(9, 1)
-    -- pal(10, 1)
-    -- spr(sprite_number, self.x+1, self.y+1)
-    -- pal()
+    pal(4, 2)
+    pal(9, 2)
+    pal(14, 2)
+    spr(sprite_number, self.x+1, self.y+1, 0)
+    pal()
     spr(sprite_number, self.x, self.y, 0)
 end
 
@@ -284,4 +284,13 @@ end
 
 function distance(point_a, point_b)
     return norm(point_b.x - point_a.x, point_b.y - point_a.y)
+end
+
+-->8
+-- mem
+
+-- swap c0 and c1 colors, call pal() to reset
+function pal(c0,c1)
+    if(c0==nil and c1==nil)then for i=0,15 do poke4(0x3FF0*2+i,i)end
+    else poke4(0x3FF0*2+c0,c1)end
 end
