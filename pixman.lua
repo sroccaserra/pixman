@@ -44,10 +44,10 @@ world = {
 }
 
 function world:init()
-    table.insert(self.coins, coin_prototype:new(81, 39))
+    table.insert(self.coins, Coin:new(81, 39))
     for x = 45, 81, 9 do
         for y = 60, 110, 10 do
-            table.insert(self.coins, coin_prototype:new(x, y))
+            table.insert(self.coins, Coin:new(x, y))
         end
     end
 end
@@ -91,9 +91,9 @@ end
 -->8
 -- animation prototype
 
-animation_prototype = {}
+Animation = {}
 
-function animation_prototype:new(frames, flip, ticks_by_frames)
+function Animation:new(frames, flip, ticks_by_frames)
     local o = {
         frames = frames,
         flip = flip,
@@ -106,21 +106,21 @@ function animation_prototype:new(frames, flip, ticks_by_frames)
     return o
 end
 
-function animation_prototype:tick()
+function Animation:tick()
     self.tick_count = self.tick_count + 1
     if self.tick_count % self.ticks_by_frames == 0 then
         self:advance_frame()
     end
 end
 
-function animation_prototype:advance_frame()
+function Animation:advance_frame()
     self.n_frame = self.n_frame + 1
     if self.n_frame > #self.frames then
         self.n_frame = 1
     end
 end
 
-function animation_prototype:sprite_number()
+function Animation:sprite_number()
     return self.frames[self.n_frame]
 end
 
@@ -129,10 +129,10 @@ end
 
 pixman = {
     animations = {
-        up = animation_prototype:new({272, 273, 274, 273}, 2),
-        down = animation_prototype:new({272, 273, 274, 273}, 0),
-        left = animation_prototype:new({256, 257, 258, 257}, 1),
-        right = animation_prototype:new({256, 257, 258, 257}, 0)
+        up = Animation:new({272, 273, 274, 273}, 2),
+        down = Animation:new({272, 273, 274, 273}, 0),
+        left = Animation:new({256, 257, 258, 257}, 1),
+        right = Animation:new({256, 257, 258, 257}, 0)
     },
     speed = 1,
 }
@@ -208,25 +208,25 @@ end
 -->8
 -- coin prototpye
 
-coin_prototype = {
+Coin = {
     v_inc = 0.25
 }
 
-function coin_prototype:new(x, y)
+function Coin:new(x, y)
     local o = {
         x = x,
         y = y,
         v_x = 0,
         v_y = 0,
         visible = true,
-        animation = animation_prototype:new({259, 260, 261, 262}, 0, 6)
+        animation = Animation:new({259, 260, 261, 262}, 0, 6)
     }
     setmetatable(o, self)
     self.__index = self
     return o
 end
 
-function coin_prototype:update(world)
+function Coin:update(world)
     if world.has_gravity then
         self:update_position()
         self:update_velocity()
@@ -234,12 +234,12 @@ function coin_prototype:update(world)
     self.animation:tick()
 end
 
-function coin_prototype:update_position()
+function Coin:update_position()
     self.x = self.x + self.v_x
     self.y = self.y + self.v_y
 end
 
-function coin_prototype:get_gravity_direction()
+function Coin:get_gravity_direction()
     local direction_x = pixman.x - self.x
     local direction_y = pixman.y - self.y
     local length = norm(direction_x, direction_y)
@@ -248,13 +248,13 @@ function coin_prototype:get_gravity_direction()
     return direction_x, direction_y
 end
 
-function coin_prototype:update_velocity()
+function Coin:update_velocity()
     local g_direction_x, g_direction_y = self:get_gravity_direction()
     self.v_x = self.v_x + self.v_inc*g_direction_x
     self.v_y = self.v_y + self.v_inc*g_direction_y
 end
 
-function coin_prototype:draw()
+function Coin:draw()
     if not self.visible then
         return
     end
@@ -267,7 +267,7 @@ function coin_prototype:draw()
     spr(sprite_number, self.x, self.y, 0)
 end
 
-function coin_prototype:hide()
+function Coin:hide()
     if self.visible then
         self.visible = false
         -- sfx(3)
